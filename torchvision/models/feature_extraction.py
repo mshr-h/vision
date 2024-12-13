@@ -339,6 +339,7 @@ def create_feature_extractor(
     tracer_kwargs: Optional[Dict[str, Any]] = None,
     suppress_diff_warning: bool = False,
     concrete_args: Optional[Dict[str, Any]] = None,
+    output_nodes_as_list: bool = False,
 ) -> fx.GraphModule:
     """
     Creates a new graph module that returns intermediate nodes from a given
@@ -543,7 +544,11 @@ def create_feature_extractor(
                     output_nodes[mode_return_nodes[mode][query]] = n
                     mode_return_nodes[mode].pop(query)
                     break
-        output_nodes = OrderedDict(reversed(list(output_nodes.items())))
+
+        if output_nodes_as_list:
+            output_nodes = list(reverse(output_nodes.values()))
+        else:
+            output_nodes = OrderedDict(reversed(list(output_nodes.items())))
 
         # And add them in the end of the graph
         with graph_module.graph.inserting_after(nodes[-1]):
